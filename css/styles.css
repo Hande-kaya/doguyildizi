@@ -1,0 +1,9 @@
+/* Doğu Yıldızı - Shared Styles */
+
+body {
+  font-family: Arial, sans-serif;
+}
+
+.site-header {
+  border-bottom: 1px solid #e5e5e5;
+}

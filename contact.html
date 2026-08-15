@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>İletişim - Doğu Yıldızı</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" defer></script>
+  <style>
+    .navbar-custom { background-color: #072f66; }
+    .nav-link.active { border-bottom: 2px solid white; }
+    .form-label { color: #0d1b2a; font-weight: 600; }
+    .card { border-radius: 10px; border: none; }
+    .btn-primary { background-color: #072f66; border: none; }
+    .btn-primary:hover { background-color: #0a3f88; }
+
+    /* Language Dropdown */
+    .lang-btn {
+       background: transparent;
+       border: 1px solid rgba(255, 255, 255, 0.5);
+       border-radius: 6px;
+       padding: 6px 10px;
+       color: white;
+    }
+    .lang-btn:hover {
+       background: rgba(255, 255, 255, 0.1);
+       border-color: rgba(255, 255, 255, 0.7);
+       color: white;
+    }
+    .lang-btn img {
+       width: 20px;
+       height: 14px;
+       border-radius: 2px;
+    }
+    .dropdown-menu {
+       min-width: 60px !important;
+       padding: 4px 0;
+       border-radius: 6px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .dropdown-item {
+       padding: 6px 12px;
+       text-align: center;
+    }
+    .dropdown-item img {
+       width: 20px;
+       height: 14px;
+       border-radius: 2px;
+    }
+    .dropdown-item:hover {
+       background: #f8f9fa;
+    }
+
+    /* Animated Envelope Styles */
+    .envelope-container {
+      position: relative;
+      width: 160px;
+      height: 100px;
+      margin: 0 auto 80px;
+      top: 40px;
+    }
+
+    .envelope {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      perspective: 1000px;
+    }
+
+    .envelope-body {
+      width: 100%;
+      height: 70%;
+      background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+      border: 2px solid #072f66;
+      position: absolute;
+      bottom: 0;
+      z-index: 2;
+    }
+
+    .envelope-flap {
+      width: 100%;
+      height: 60%;
+      background: linear-gradient(145deg, #072f66, #0a3f88);
+      position: absolute;
+      top: 0;
+      left: 0;
+      clip-path: polygon(0 0, 100% 0, 50% 100%);
+      transform-origin: 50% 0%;
+      transform: rotateX(0deg);
+      transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 3;
+      border: 2px solid #0a3f88;
+    }
+
+    .envelope.open .envelope-flap {
+      transform: rotateX(-120deg);
+    }
+
+    /* Mail icon inside */
+    .envelope-icon {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 24px;
+      color: #072f66;
+      z-index: 1;
+    }
+
+    .letter {
+      width: 80%;
+      height: 85%;
+      background: #fff;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) translateY(100px);
+      border-radius: 3px;
+      transition: transform 0.6s ease-out 0.8s;
+      z-index: 4;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      border: 1px solid #dee2e6;
+    }
+
+    .envelope.open .letter {
+      transform: translate(-50%, -50%) translateY(-30px);
+    }
+
+    /* Letter content lines */
+    .letter::before {
+      content: '';
+      position: absolute;
+      top: 20%;
+      left: 15%;
+      width: 70%;
+      height: 3px;
+      background: #072f66;
+      border-radius: 2px;
+    }
+
+    .letter::after {
+      content: '';
+      position: absolute;
+      top: 40%;
+      left: 15%;
+      width: 50%;
+      height: 2px;
+      background: #6c757d;
+      border-radius: 1px;
+    }
+
+    .typed-message {
+      position: absolute;
+      top: -120px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 350px;
+      text-align: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(7, 47, 102, 0.3);
+    }
+
+    .typed-message.show {
+      opacity: 1;
+    }
+
+    .typing-cursor {
+      animation: blink 1s infinite;
+      color: #072f66;
+      font-weight: bold;
+    }
+
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+
+    /* Floating animation for the entire container */
+    .envelope-container {
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+
+    /* Phones: no envelope; show message as a simple line */
+    @media (max-width: 768px){
+      .envelope-container { display: none !important; }
+
+      /* make sure the text is actually visible and not overlapped/hidden */
+      .typed-message{
+        position: static !important;
+        display: block !important;
+        opacity: 1 !important;
+        transform: none !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 12px 0 0 !important;
+        padding: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        color: #072f66 !important;      /* readable on white */
+        z-index: 1 !important;
+        pointer-events: none;            /* taps pass through */
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+  <div class="container">
+    <a class="navbar-brand me-3" href="index.html">
+      <img src="images/logo.png" alt="Logo" height="72">
+    </a>
+    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+      <li class="nav-item"><a class="nav-link" href="index.html">Anasayfa</a></li>
+      <li class="nav-item"><a class="nav-link" href="about.html">Hakkımızda</a></li>
+      <li class="nav-item"><a class="nav-link" href="services.html">Hizmetler</a></li>
+      <li class="nav-item"><a class="nav-link active" href="contact.html">İletişim</a></li>
+    </ul>
+    <div class="dropdown ms-auto">
+      <button class="btn lang-btn dropdown-toggle d-flex align-items-center" type="button" data-bs-toggle="dropdown">
+        <img src="images/tr.png" alt="Türkçe">
+        <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu dropdown-lang dropdown-menu-end">
+        <li>
+          <a class="dropdown-item lang-item d-flex align-items-center active" href="#">
+            <img src="images/tr.png" alt="Türkçe">
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item lang-item d-flex align-items-center" href="en/contact.html">
+            <img src="images/gb.png" alt="English">
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- Page Content -->
+<div class="container my-5">
+
+  <!-- Top Row -->
+  <div class="row g-4 align-items-center">
+
+    <!-- Left: Form -->
+    <div class="col-lg-6">
+      <div class="card shadow p-4">
+        <h4 class="mb-4">İletişim Formu</h4>
+        <form id="contactForm" action="https://formspree.io/f/xnnvrblr" method="POST" class="row g-3">
+          <!-- Hidden redirect field -->
+          <input type="hidden" name="_redirect" value="https://doguyildizi.com/thank-you.html">
+          <div class="col-md-6">
+            <label for="name" class="form-label">Ad Soyad</label>
+            <input type="text" name="name" class="form-control" id="name" required>
+          </div>
+          <div class="col-md-6">
+            <label for="email" class="form-label">E-posta</label>
+            <input type="email" name="email" class="form-control" id="email" required>
+          </div>
+          <div class="col-12">
+            <label for="message" class="form-label">Mesajınız</label>
+            <textarea name="message" class="form-control" id="message" rows="5" required></textarea>
+          </div>
+          <div class="col-12">
+            <button type="submit" class="btn btn-primary px-4">Gönder</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Right: Animated Envelope -->
+    <div class="col-lg-6 text-center">
+
+      <!-- Desktop Envelope Animation -->
+      <div class="envelope-container d-none d-lg-block">
+        <div class="envelope" id="envelope">
+          <div class="envelope-body">
+            <i class="bi bi-envelope envelope-icon"></i>
+          </div>
+          <div class="envelope-flap"></div>
+          <div class="letter"></div>
+        </div>
+        <div class="typed-message" id="typedMessage">
+          <p class="fs-5" id="messageText">
+            <span id="typingText"></span><span class="typing-cursor" id="cursor">|</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Mobile Instant Message -->
+      <div id="mobileMessage" class="d-block d-lg-none" style="display:none;">
+        <p class="fs-5" style="color:#072f66; margin-top:12px;"></p>
+      </div>
+
+    </div>
+
+
+  <!-- Spacer -->
+  <hr class="my-5">
+
+  <!-- Bottom Row -->
+  <div class="row g-4">
+
+    <!-- Left: Contact Info -->
+    <div class="col-lg-6">
+      <h4>İletişim Bilgilerimiz</h4>
+      <p><strong>Doğu Yıldızı Maden Turizm Kuyumculuk Lojistik Danışmanlık İç ve Dış Ticaret A.Ş.</strong></p>
+      <p>Merkez Mah. Hasat Sok. Kamara No: 52/1, Şişli, İstanbul, Türkiye</p>
+      <p><strong>Vergi Dairesi / No:</strong> Şişli 3090637881</p>
+      <p><strong>MERSİS No:</strong> 0309063788100001</p>
+      <p><strong>E-posta:</strong> info@doguyildizi.com</p>
+      <p><strong>Telefon:</strong> +90 212 XXX XX XX</p>
+      <p><strong>Çalışma Saatleri:</strong> Pazartesi - Cuma, 09:00 - 18:00</p>
+    </div>
+
+    <!-- Right: Map -->
+    <div class="col-lg-6">
+      <div class="ratio ratio-16x9">
+        <iframe
+          src="https://www.google.com/maps?q=Merkez+Mah.+Hasat+Sok.+Kamara+No:52/1,+Şişli,+İstanbul&output=embed"
+          allowfullscreen
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          title="Dogu Yildizi Location on Google Maps">
+        </iframe>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Footer -->
+<footer class="bg-light text-center text-muted py-3 mt-5">
+  &copy; 2025 Doğu Yıldızı A.Ş. Tüm hakları saklıdır.
+</footer>
+
+<script>
+window.addEventListener('load', function () {
+  const isMobile = window.matchMedia('(max-width: 991px)').matches; // matches Bootstrap's lg breakpoint
+  const lang = (document.documentElement.lang || 'tr').toLowerCase();
+
+  const msgTR = "Bizimle iletişime geçmekten çekinmeyin. Ekibimiz, size en kısa sürede dönüş yapacaktır. Sorularınızı, iş tekliflerinizi veya taleplerinizi memnuniyetle bekliyoruz.";
+  const msgEN = "Feel free to contact us. Our team will get back to you as soon as possible. We welcome your questions, job offers, or requests.";
+  const message = lang.startsWith('en') ? msgEN : msgTR;
+
+  if (isMobile) {
+    // Mobile: show #mobileMessage with typing effect
+    const mobileMessageBox = document.querySelector('#mobileMessage');
+    const mobileMessageText = document.querySelector('#mobileMessage p');
+
+    mobileMessageBox.style.display = 'block';
+    typeMessage(message, mobileMessageText, null, 45); // faster speed on mobile
+    return;
+  }
+
+  // Desktop: original envelope animation
+  const envelope = document.getElementById('envelope');
+  const typedMessage = document.getElementById('typedMessage');
+  const typingText = document.getElementById('typingText');
+  const cursor = document.getElementById('cursor');
+
+  setTimeout(() => {
+    envelope.classList.add('open');
+    setTimeout(() => {
+      typedMessage.classList.add('show');
+      typeMessage(message, typingText, cursor, 50);
+    }, 1400);
+  }, 500);
+});
+
+function typeMessage(message, element, cursor, speed) {
+  let i = 0;
+  function type() {
+    if (i < message.length) {
+      element.textContent += message.charAt(i++);
+      setTimeout(type, speed);
+    } else {
+      if (cursor) setTimeout(() => cursor.style.display = 'none', 1000);
+    }
+  }
+  type();
+}
+</script>
+
+<script>
+document.getElementById('contactForm').addEventListener('submit', async function(e) {
+  e.preventDefault(); // stop normal submit
+
+  const form = e.target;
+  const data = new FormData(form);
+
+  try {
+    const res = await fetch(form.action, {
+      method: form.method,
+      body: data,
+      headers: { 'Accept': 'application/json' }
+    });
+
+    if (res.ok) {
+      window.location.href = "thank-you.html"; // redirect to your thank-you page
+    } else {
+      alert("There was a problem sending your message. Please try again.");
+    }
+  } catch (err) {
+    alert("Network error. Please try again.");
+  }
+});
+</script>
+
+
+</body>
+</html>
